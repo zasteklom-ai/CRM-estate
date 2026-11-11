@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Усадьба·CRM — бронирование площадок</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app"><div class="boot">Загрузка CRM…</div></div>
+
+<!-- Диагностика: просмотрщик файлов в рабочем пространстве работает без сети,
+     поэтому скрипт и API могут не загрузиться. Тогда показываем понятное сообщение,
+     а не вечное «Загрузка CRM…». -->
+<script>
+(function () {
+  var app = document.getElementById('app');
+  var port = (location.hostname.match(/^(\\d{2,6})-/) || [])[1] || '8080';
+
+  function fail(title, lines) {
+    app.innerHTML = '<div style="max-width:640px;margin:10vh auto;padding:24px;background:#fff;' +
+      'border:1px solid #e3e7ec;border-radius:12px;font:14px/1.5 system-ui,sans-serif">' +
+      '<h2 style="margin:0 0 10px">' + title + '</h2>' +
+      lines.map(function (t) { return '<p style="margin:6px 0">' + t + '</p>'; }).join('') +
+      '<p style="color:#7b8494;font-size:12px;margin-top:14px">текущий адрес: <code>' +
+      location.href + '</code></p></div>';
+  }
+
+  window.addEventListener('error', function (e) {
+    if (app.getAttribute('data-boot') === 'ok') return;
+    fail('Скрипт приложения не загрузился',
+      ['Ошибка: <code>' + (e.message || 'resource error') + '</code> — файл <code>app.js</code> не вернулся с сервера.',
+       'Откройте <b>живое превью запущенного процесса</b> (порт ' + port + '), а не сам файл <code>index.html</code>: просмотрщик файлов изолирован от сети.']);
+  }, true);
+
+  setTimeout(function () {
+    if (app.getAttribute('data-boot') === 'ok') return;
+    fetch('healthz', { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function () {
+      fail('Сервер отвечает, но интерфейс не запустился',
+        ['API доступен, значит проблема в загрузке <code>app.js</code>. Обновите страницу (Ctrl/Cmd+Shift+R) и откройте консоль браузера — там будет точная ошибка.']);
+    }).catch(function (err) {
+      fail('До CRM-сервера нет доступа',
+        ['Сетевой запрос к API не прошёл: <code>' + err + '</code>.',
+         'Так бывает, если открыть <b>файл</b> <code>venue-crm/web/index.html</code> во встроенном просмотрщике — у него нет сети по соображениям безопасности.',
+         'Нужно открыть <b>живой предпросмотр запущенного процесса</b> <code>python3 server.py</code> — вкладка/кнопка Preview для порта ' + port + '.',
+         'Локально: <code>http://localhost:' + port + '</code>.']);
+    });
+  }, 5000);
+})();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+Усадьба·CRM готов: http://0.0.0.0:8080  (админ: admin / admin123)
+Усадьба·CRM готов: http://0.0.0.0:8080  (админ: admin / admin123)
+Усадьба·CRM готов: http://0.0.0.0:8080  (админ: admin / admin123)
+Усадьба·CRM готов: http://0.0.0.0:8080  (админ: admin / admin123)
+[req] GET /
+[req] GET /
+[req] HEAD /app.js
+[req] POST /api/login
+[req] GET /api/deals
